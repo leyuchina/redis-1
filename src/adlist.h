@@ -36,7 +36,7 @@
 typedef struct listNode {
     struct listNode *prev;
     struct listNode *next;
-    void *value;
+    void *value; //void pointer or general purpose pointer,可以用来存储任意类型变量的地址
 } listNode;
 
 typedef struct listIter {
