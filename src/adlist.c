@@ -41,7 +41,7 @@
 list *listCreate(void)
 {
     struct list *list;
-
+    //为什么用NULL来测试
     if ((list = zmalloc(sizeof(*list))) == NULL)
         return NULL;
     list->head = list->tail = NULL;
@@ -122,16 +122,22 @@ list *listAddNodeTail(list *list, void *value)
     list->len++;
     return list;
 }
-
+/* Add a new node to the list, containing the specified 'value'
+ * pointer as value.
+ *
+ * On error, NULL is returned and no operation is performed (i.e. the
+ * list remains unaltered).
+ * On success the 'list' pointer you pass to the function is returned. */
 list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
     listNode *node;
-
     if ((node = zmalloc(sizeof(*node))) == NULL)
         return NULL;
     node->value = value;
+    //after为真，则在old_node后面插入新节点,为什么after不是bool型
     if (after) {
         node->prev = old_node;
         node->next = old_node->next;
+        old_node->next = node; //add by fres
         if (list->tail == old_node) {
             list->tail = node;
         }
