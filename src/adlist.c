@@ -144,16 +144,19 @@ list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
     } else {
         node->next = old_node;
         node->prev = old_node->prev;
+        old_node->prev = node; // add by fres
         if (list->head == old_node) {
             list->head = node;
         }
     }
     if (node->prev != NULL) {
-        node->prev->next = node;
+        node->prev->next = node; 
+        
     }
     if (node->next != NULL) {
         node->next->prev = node;
     }
+    
     list->len++;
     return list;
 }
@@ -161,18 +164,24 @@ list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
 /* Remove the specified node from the specified list.
  * It's up to the caller to free the private value of the node.
  *
- * This function can't fail. */
+ * This function can't fail. 
+ * NB
+ */
 void listDelNode(list *list, listNode *node)
 {
-    if (node->prev)
+    //node不是头结点
+    if (node->prev){
         node->prev->next = node->next;
-    else
+    }else{
         list->head = node->next;
-    if (node->next)
+    }
+    if (node->next){
         node->next->prev = node->prev;
-    else
+    }else{
         list->tail = node->prev;
-    if (list->free) list->free(node->value);
+    }
+    if (list->free)
+        list->free(node->value);//why if(list->free)
     zfree(node);
     list->len--;
 }
@@ -184,8 +193,8 @@ void listDelNode(list *list, listNode *node)
 listIter *listGetIterator(list *list, int direction)
 {
     listIter *iter;
-
-    if ((iter = zmalloc(sizeof(*iter))) == NULL) return NULL;
+    if ((iter = zmalloc(sizeof(*iter))) == NULL) 
+        return NULL;
     if (direction == AL_START_HEAD)
         iter->next = list->head;
     else
@@ -229,6 +238,7 @@ listNode *listNext(listIter *iter)
     listNode *current = iter->next;
 
     if (current != NULL) {
+        //如果遍历的方向从头节点至尾节点
         if (iter->direction == AL_START_HEAD)
             iter->next = current->next;
         else
@@ -296,7 +306,7 @@ listNode *listSearchKey(list *list, void *key)
             if (list->match(node->value, key)) {
                 return node;
             }
-        } else {
+        }else{
             if (key == node->value) {
                 return node;
             }
